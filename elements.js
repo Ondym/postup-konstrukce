@@ -1,11 +1,13 @@
-const globalPointStyle = 1;
+let globalPointStyle = 1;
+let paperMode = false;
 
 class Point{
     constructor(_x, _y, _name, _visible, _color) {
         this.x = _x;
         this.y = _y;
         this.color = _color != undefined ? _color : (visiblePoints+1) % (colorPalette.length-1) + 1;
-        console.log(autoNamedPoints);
+        // console.log(autoNamedPoints);
+        if (paperMode) this.color = 0;
         this.name = _name != undefined ? _name : String.fromCharCode(65+autoNamedPoints);
         this.visible = _visible != undefined ? _visible : true;
         
@@ -28,9 +30,9 @@ class Point{
     show() {
         if (!this.visible) return;
         
-        showName(this.name, this.x + 6, this.y + 10, this.color)
+        showName(this.name, this.x + 6, this.y + 15, this.color)
         
-        ctx.lineWidth = 4;
+        ctx.lineWidth = paperMode ? 1 : 4;
         if (this.style == 1) {
             // let str = ctx.lineWidth;
             setStrokeColor(colorPalette[this.color]);
@@ -40,7 +42,7 @@ class Point{
             
         } else {
             stroke = false;
-            circle(this.x, this.y, 5);
+            circle(this.x, this.y, 4);
         }
     }
 
@@ -87,17 +89,9 @@ class Line{
             if (this.type == 0) {
                 ends[0] = inf[0];
             }
-
-            showName(this.name, ends[1].x + 8, ends[1].y + 8, this.color, true);
+            
+            showName(this.name, ends[1].x + 8, ends[1].y + 12, this.color, true);
         } 
-        
-        // setFillColor(colorPalette[this.color]);
-        // setStrokeColor(bgColor);
-        // ctx.lineWidth = 1;
-        // ctx.fillText(this.name, titlePos.x, titlePos.y);
-        // if (outlineNames) {
-            // ctx.strokeText(this.name, titlePos.x, titlePos.y);
-        // }
         
         ctx.lineWidth = lineWidth;
         setStrokeColor(colorPalette[this.color]);
@@ -115,19 +109,21 @@ class Line{
     ext() {
         let ends = [vector(elements.points[this.point1].x, elements.points[this.point1].y), vector(elements.points[this.point2].x, elements.points[this.point2].y)]
         let inf = findEdgesOfLine(ends[0], ends[1]);
-        console.log(ends);
     }
 }
 
 class Circle{
-    constructor(_centerPointindex, _radius) {
+    constructor(_centerPointindex, _radius, _name) {
         this.center = _centerPointindex;
         this.r = _radius;
         this.ID = "circle_" + elements.circles.length;
 
         this.visible = true;
-        this.name = "k_" + elements.circles.length;
-
+        this.name = _name;
+        if (this.name == undefined) {
+            this.name = "k_" + elements.circles.length;
+        }
+        
         elements.circles.push(this);
     }
 
@@ -141,7 +137,7 @@ class Circle{
             );
             
             if (titlePos.x > 0 && titlePos.y > 0 && titlePos.x < w && titlePos.y < h) {
-                showName(this.name, titlePos.x, titlePos.y, colorPalette[0], true);
+                showName(this.name, titlePos.x, titlePos.y, 0, true);
                 break;
             }
         }
@@ -158,6 +154,7 @@ class Polygon{
         
         this.vertexes = _vertexes;
         this.color = _color != undefined ? _color:4;
+        if (paperMode) this.color = 0;
 
         this.ID = "polygon_" + elements.polygons.length;
 
@@ -180,7 +177,7 @@ class Polygon{
         ctx.closePath();
 
         ctx.stroke();
-        ctx.fill();
+        if (!paperMode) ctx.fill();
     }
 }
 
@@ -188,18 +185,23 @@ class Angle {
 
 }
 
-function searchElementByName(_name) {
+function searchElementByName(_name, _getGroup) {
     for (const elementClass in elements) {
         for (i = 0; i < elements[elementClass].length; i++) {
             if (elements[elementClass][i].name == _name) {
-                return [elementClass, i];
+                if (_getGroup) {
+                    return [elementClass, i];
+                } else {
+                    return i;
+                }
             }
         }
     }
+    return UN;
 }
 
-function SEBN(_name) {
-    return searchElementByName(_name);
+function SEBN(_name, _getGroup) {
+    return searchElementByName(_name, _getGroup);
 }
 
 function searchElementByID(_id) {

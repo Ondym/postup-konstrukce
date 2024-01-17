@@ -1,9 +1,12 @@
 function findEdgesOfLine(p1, p2) {
+    if (typeof p1 == 'number') p1 = vector(elements.points[p1]);
+    if (typeof p2 == 'number') p2 = vector(elements.points[p2]);
+
     // In case of perfectly vertical lines
     if (p1.x == p2.x) {
         return [
-            vector(p1.x, 0),
-            vector(p2.x, h),
+            vector(p1.x, p1.y > p2.y ? h : 0),
+            vector(p2.x, p1.y > p2.y ? 0 : h),
         ];
     }
     
@@ -24,16 +27,19 @@ function findEdgesOfLine(p1, p2) {
         } 
     }
 
+    if (ends.length == 0) {
+        ends = [vector(-5, -5), vector(-5, -5)];
+    }
     return ends;
 }
 
 function findLineLineIntersects(lineIndex1, lineIndex2) {
     let line1 = simpleLine(elements.lines[lineIndex1]);
     let line2 = simpleLine(elements.lines[lineIndex2]);
-    
+
     let slope1 = (line1.p2.y - line1.p1.y) / (line1.p2.x - line1.p1.x);
     let slope2 = (line2.p2.y - line2.p1.y) / (line2.p2.x - line2.p1.x);
-
+    
     let constant1 = line1.p1.y - slope1 * line1.p1.x
     let constant2 = line2.p1.y - slope2 * line2.p1.x
     
@@ -46,7 +52,7 @@ function findLineLineIntersects(lineIndex1, lineIndex2) {
     }
     
     let retPoint = vector(ix, slope1 * ix + constant1);
-    if (isPointInBounds(retPoint, lineIndex1) && isPointInBounds(retPoint, lineIndex2)) {
+    if (isPointInBounds(lineIndex1, retPoint) && isPointInBounds(lineIndex2, retPoint)) {
         return retPoint;
     }
     return vector(NaN, NaN);
@@ -89,7 +95,7 @@ function findCircleLineIntersects(circleIndex, lineIndex, lineIsAngleArm) {
 }
 
 function findLineCircleIntersects(lineIndex, circleIndex) {
-    findCircleLineIntersects(circleIndex, lineIndex);
+    return findCircleLineIntersects(circleIndex, lineIndex);
 }
 
 function findCircleCircleIntersects(circleIndex1, circleIndex2) {
@@ -109,19 +115,24 @@ function findCircleCircleIntersects(circleIndex1, circleIndex2) {
             p2.y - m*h1 * (c1.x - c0.x) / d,
         ));
     }
-    
+
+    intersections.sort((a, b) => a.y-b.y)
+
     return intersections;
 }
 
 function middlePoint(p1, p2) {
-    // In case of parameterers being just 1 line segment
     if (p2 == undefined) {
+        // In case of parameterers being just 1 line segment
         if (typeof p1 == "object") {
             p2 = p1.p2;
             p1 = p1.p1;
         } else if (typeof p1 == "number") {
             return middlePoint(elements.lines[p1]);
         }
+    } else {
+        if (typeof p1 == 'number') p1 = vector(elements.points[p1]);
+        if (typeof p2 == 'number') p2 = vector(elements.points[p2]);
     }
 
     return vector(
@@ -193,12 +204,29 @@ function findParallelLine(lineIndex, pointIndex) {
     return vector(defPoint.x + 1, slope * (defPoint.x + 1) + const2);
 }
 
+function findParallelLineFromDistance(lineIndex, _d) {
+    let _line = simpleLine(elements.lines[lineIndex]);
+    let slope = findLineSlope(_line);
+    let constant = _line.p1.y - slope * _line.p1.x;
+
+    let constant2 = _d * Math.sqrt(slope**2 + 1) + constant;
+    let outputLine = simpleLine(0,0,0,0);
+
+    // console.log((lineIndex));
+    outputLine.p1 = vector(_line.p1.x, slope * _line.p1.x + constant2);
+    outputLine.p2 = vector(_line.p1.x + cmToPx, slope * (_line.p1.x + cmToPx) + constant2);
+
+    return outputLine;
+}
+
 function findLineSlope(_line) {
     return (_line.p2.y - _line.p1.y) / (_line.p2.x - _line.p1.x);
 }
 
 function isPointInBounds(_lineIndex, _point, lineIsAngleArm) {
     let _line;
+    
+    let lineType = lineIsAngleArm ? 1 : elements.lines[_lineIndex].type;
     if (typeof _lineIndex == "number") {
         _line = simpleLine(elements.lines[_lineIndex]);
     } else {
@@ -207,7 +235,6 @@ function isPointInBounds(_lineIndex, _point, lineIsAngleArm) {
     if (typeof _point == "number") {
         _point = vector(elements.points[_point].x, elements.points[_point].y);
     }
-    let lineType = lineIsAngleArm ? 1 : elements.lines[_lineIndex].type;
 
     switch (lineType) {
         case 0:
@@ -241,16 +268,28 @@ function arePointsInBounds(_lineIndex, _points, lineIsAngleArm) {
     return _points;
 }
 
+function getAngleBetweenPoints(p1, p2, p3) {
+    if (typeof p1 == 'number') p1 = vector(elements.points[p1]);
+    if (typeof p2 == 'number') p2 = vector(elements.points[p2]);
+    if (typeof p3 == 'number') p3 = vector(elements.points[p3]);
+
+    let a = dist(p2, p3);
+    let b = dist(p1, p3);
+    let c = dist(p1, p2);
+ 
+    return angle = Math.acos((a**2 + c**2 - b**2) / (2 * a * c));
+}
+
 function findPointsUnderAngle(angle, p1, p2, _d) {
     if (typeof p1 == 'number') p1 = vector(elements.points[p1]);
     if (typeof p2 == 'number') p2 = vector(elements.points[p2]);
-    if (_d == undefined) _d = 15;
+    if (_d == undefined) _d = cmToPx * 2;
 
     let startingAngle = Math.atan2(p2.y - p1.y, p2.x - p1.x) - Math.PI;
 
     let  retPoints = new Array;
 
-    for (let m = -1; m < 2; m += 2) {
+    for (let m = 1; m > -2; m -= 2) {
         retPoints.push(vector(
             p2.x + _d * Math.cos(m*angle + startingAngle),
             p2.y + _d * Math.sin(m*angle + startingAngle),
@@ -260,12 +299,22 @@ function findPointsUnderAngle(angle, p1, p2, _d) {
     return retPoints;
 }
 
-function findAngleBisector(p1, p2, p3) {
+function findAngleBisector(p1, p2, p3, _d) {
     if (typeof p1 == 'number') p1 = vector(elements.points[p1]);
     if (typeof p2 == 'number') p2 = vector(elements.points[p2]);
     if (typeof p3 == 'number') p3 = vector(elements.points[p3]);
+/*
+    let baseAngle = min(
+        getAngleBetweenPoints(p2, vector(p2.x+10, p2.y), p1),
+        getAngleBetweenPoints(p2, vector(p2.x+10, p2.y), p3)
+    );
+    console.log(baseAngle);
+    let newPointAngle = baseAngle + getAngleBetweenPoints(p1, p2, p3)/2;
 
-    let temporaryCircle = {r: 10, center: p2};
+    return vector(p2.x + Math.cos(newPointAngle) * Math.sqrt(2)*100, p2.y + Math.sin(newPointAngle) * Math.sqrt(2)*100);
+*/
+    _d = _d || 40
+    let temporaryCircle = {r: _d, center: p2};
     let armPoint1 = findCircleLineIntersects(temporaryCircle, simpleLine(p2.x, p2.y, p1.x, p1.y), true);
     let armPoint2 = findCircleLineIntersects(temporaryCircle, simpleLine(p2.x, p2.y, p3.x, p3.y), true);
 
@@ -273,24 +322,68 @@ function findAngleBisector(p1, p2, p3) {
 }
 
 
+
+function findElementsIntersects(_name1, _name2) {
+    if (_name2 == undefined) {
+        _name2 = _name1[1];
+        _name1 = _name1[0];
+    }
+
+    let obj1 = searchElementByName(_name1, true);
+    let obj2 = searchElementByName(_name2, true);
+
+    obj1[0] =  obj1[0][0].toUpperCase() + obj1[0].slice(1, obj1[0].length - 1);
+    obj2[0] =  obj2[0][0].toUpperCase() + obj2[0].slice(1, obj2[0].length - 1);
+
+    let inters = window["find" + obj1[0] + obj2[0] + "Intersects"](obj1[1], obj2[1]);
+    return inters;
+}
+
+// ---------------------------
+//          VISUALS
+// ---------------------------
+
 function showName(_name, _x, _y, _color, _thin) {
     _x = _x > 2 ?    _x : 2;
-    _x = _x < w-15 ? _x : w-15;
+    _x = _x < w-20 ? _x : w-20;
     _y = _y > 12 ?   _y : 12;
     _y = _y < h-8 ?  _y : h-8;
-
-    ctx.font = "15px Arial" + (_thin ? "" : " Black");
-    if (_name.includes("_")) {
-        _name = _name.split("_");
-        _name = _name[0] + String.fromCharCode(0x2080 + Number(_name[1]));
-    }
     
-    if (outlineNames) {
-        ctx.lineWidth = 3;
-        setStrokeColor(bgColor);
-        ctx.strokeText(_name, _x, _y);
-    }
+    if (paperMode) _thin = true;
+    let letters = getObjectNames(_name) ;
+    // if (letters.length > 1) _name = getObjectNames(_name).join(" ")
+    
+    // console.log(letters);
+    let lx = _x;
+    for (let i = 0; i < letters.length; i++) {
+        let letter = letters[i];
+        let subscript = "";
+        let font = "Arial" + (_thin ? "" : " Black");
+        if (letter.includes("_")) {
+            letter = letter.split("_");
+            subscript = letter[1];
+            letter = letter[0];// + String.fromCharCode(0x2080 + Number(letter[1]));
+        }
 
-    setFillColor(colorPalette[_color]);
-    ctx.fillText(_name, _x, _y);
+        if (outlineNames) {
+            ctx.font = "15px " + font;
+            ctx.lineWidth = 3;
+            setStrokeColor(bgColor);
+            ctx.strokeText(letter, lx, _y);
+            if (subscript) {
+                ctx.font = "11px " + font;
+                ctx.strokeText(subscript, lx + (_thin ? 8 : 12), _y+5);
+                ctx.font = "15px " + font;
+            }
+        }
+
+        setFillColor(colorPalette[_color]);
+        ctx.fillText(letter, lx, _y);
+        if (subscript) {
+            ctx.font = "11px " + font;
+            ctx.fillText(subscript, lx+(_thin ? 8 : 12), _y+5);
+        }
+
+        lx += (letter.length + 0.6*subscript.length) * (_thin ? 10 : 12);
+    }
 }

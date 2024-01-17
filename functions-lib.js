@@ -3,6 +3,9 @@ let w,h;
 let stroke = false;
 
 function dist(x1, y1, x2, y2) {
+  if (x2 == undefined || y2 == undefined) {
+    return Math.sqrt(abs(x1.x - y1.x)**2 + abs(x1.y - y1.y)**2);
+  }
     return Math.sqrt(abs(x1 - x2) * abs(x1 - x2) + abs(y1 - y2) * abs(y1 - y2));
  }
 
@@ -110,5 +113,5 @@ function makeCanvas(_w, _h) {
 
   w = _w;
   h = _h;
-  document.getElementById("right").appendChild(cnv);
+  document.getElementById("canvas-container").appendChild(cnv);
 }

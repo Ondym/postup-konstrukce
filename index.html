@@ -5,35 +5,443 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Postup konstrukce</title>
     <link rel="stylesheet" href="style.css">
+    <link rel="stylesheet" href="checkbox.css">
     <script src="functions-lib.js"></script>
     <script src="script.js"></script>
     <script src="elements.js"></script>
     <script src="constructors.js"></script>
     <script src="ui.js"></script>
+    <script src="set-input.js"></script>
 </head>
-<body onload="setup(); init();">
+<body onload=" init();setup();">
     <div class="introduction">
         <h1>
             Sestrojovač postupu konstrukce
         </h1>
         <p>
-            Lorem ipsum dolor sit amet consectetur adipisicing elit. Doloremque in deserunt nesciunt maxime possimus laboriosam sequi perferendis aliquam laudantium minima illo quod quisquam sed, quam iure totam? Praesentium, debitis molestias!
+            Vítejte u sestrojovače postupu konstrukce. O čem tento program je? Hlavní funkcí Sestrojovače postupu konstrukce je umožnit uživatelům zapsat postup geometrické konstrukce pomocí předem definovaných matematických a logických značek, které jsou pro jistotu popsány a vysvětleny níže. Je také nutné dodržovat přesně daný matematický syntax matematického zápisu, který je také pro jistotu specifikován níže. Program pak tyto značky interpretuje a automaticky generuje odpovídající geometrický obrázek. Uživatelé mohou zadávat konstrukční kroky pro vytvoření různých geometrických tvarů.
         </p>
+
+        <h2>Seznam symbolů</h2>
+        <p>
+            Jelikož asi nikdo nedokáže z hlavy napsat všechny symboly užívané v popisu postupu konstrukce, je pod vstupním polem i pomocná klávesnice, kde můžete myší vybrat symbol, který chcete zapsat. Pro ty, kteří preferují nestřídat při psaní myš a klávesnici, jsou tady i zkratky. Ty, pokud není symbol snadné napsat a klávesnici, fungují tak, 
+            že na klávesnici napíšete / a písmeno, které má každý symbol přidělený. Většinou je to počáteční písmeno názvu symbolu v češtině, pokud by došlo k překryvu, tak v angličtině. Program ihned automaticky zkratku změní v symbol, který chcete. Nejdříve musíme přesně definovat všechny symboly. Proto je tady následující tabulka:
+        </p>
+
+        <table class="symb-tab">
+            <colgroup>
+                <col class="symbol-col"/>
+                <col class="shortcut-col"/>
+                <col class="meaning-col"/>
+                <col class="example-col"/>
+            </colgroup>
+            <thead>
+                <tr>
+                    <td>Symbol</td>
+                    <td>Zkratka</td>
+                    <td>Význam</td>
+                    <td>Příklad použití</td>
+                </tr>
+            </thead>
+            <tbody>
+                <tr>
+                    <td>=</td>
+                    <td><span>=</span></td>
+                    <td><b>Rovná se</b> zde funguje stejně jako v celé matematice. <!--Pokud chcete narýsovat něco s danou--></td>
+                    <td><span>AB; |AB| <i>=</i> 11cm</span>,<br>
+                    <span>C; |∢ABC| <i>=</i> 30°</span></td>
+                </tr><tr>
+                    <td>|</td>
+                    <td><span>AltGr+w</span></td>
+                    <td><b>Absolutní hodnota</b> znamená velikost, můžete ji použít pro definici úsečky či úhlu. Dále funguje i jako přenesení vzdálenosti, tak jako byste na papíře dělali s kružítkem. Pokud zrovna nedefinujete rovnoběžku, můžete přenášet a porovnávat pouze vzdálenost mezi dvěma body, nikoliv přímkami či úsečkami.</td>
+                    <td><span>E; <i>|</i>∢EFG<i>|</i> = 50°</span>, <span>o; o(S, r = <i>|</i>AB<i>|</i>)</span></td>
+                </tr><tr>
+                    <td>;</td>
+                    <td><span>;</span></td>
+                    <td><b>Středník (takový, že...)</b> se užívá k oddělení definice objektu, který chcete narýsovat a jeho definice.</td>
+                    <td><span>k<i>;</i> k(R, 3cm)</span></td>
+                </tr><tr>
+                    <td>∧</td>
+                    <td>/a</td>
+                    <td><b>Logické a (konjunkce)</b> slouží jako spojka, když chcete v definici uvést více parametrů.</td>
+                    <td><span>p; p⊥q <i>∧</i> O∈p</span></td>
+                </tr><tr>
+                    <td>△</td>
+                    <td>/t</td>
+                    <td><b>Trojúhelník</b></td>
+                    <td><span><i>△</i>KLM</span></td>
+                </tr><tr>
+                    <td>◻</td>
+                    <td>/c</td>
+                    <td><b>Čtyřúhelník</b></td>
+                    <td><span><i>◻</i>OPQR</span></td>
+                </tr><tr>
+                    <td>⬠</td>
+                    <td>/n</td>
+                    <td class="lc"><b>n-úhelník</b> lze využít k narýsování jekéhokoliv n-úhelníku. Dají se jím nahradit předchozí dva symboly (čtyř i trojúhelník).</td>
+                    <td><span><i>⬠</i>EFGHIJ</span>, <span><i>⬠</i>VHU</span></td>
+                </tr><tr>
+                    <td>∈</td>
+                    <td>/e</td>
+                    <td><b>Je elementem</b> znamená, že bod leží na něčem. Může to být konkrétní průsečík, kružnice nebo třeba celá přímka. Můžete tohoto symbolu využít jak při definici bodu, tak při definici přímky.</td>
+                    <td>
+                        <span>n; m⊥n ∧ W<i>∈</i>f</span>, 
+                        <span>S; S <i>∈</i>u∩v</span>
+                    </td>
+                </tr><tr>
+                    <td>⊆</td>
+                    <td>/s</td>
+                    <td><b>Je podmnožinou</b> funguje stejně, jako <i>je elementem</i> s tím rozdílem, že se použije pro množinu bodů. Tento symbol použijete prakticky pouze, pokud chcete definovat více průsečíků najednou.</td>
+                    <td><span>AB; {A, B} <i>⊆</i> k∩l</span></td>
+                </tr><tr>
+                    <td>∩</td>
+                    <td>/i</td>
+                    <td><b>Průnik</b>, jinými slovy průsečík. Použijete ho při definici jednoho, či dvou bodů.</td>
+                    <td>
+                        <span>YD; {D, Y}⊆p<i>∩</i>k</span>,
+                        <span>B; B∈k<i>∩</i>p_2</span>
+                    </td>
+                </tr><tr>
+                    <td>↔</td>
+                    <td>/p</td>
+                    <td><b>Přímka</b> pomocí tohoto symbolu vznikne vždy, jako prodloužená spojnice dvou bodů. Použijete ji, když chcete narýsovat přímku procházející dvěma body</td>
+                    <td><span>p; <i style="font-family: sans-serif;">↔</i>DE</span></td>
+                </tr><tr>
+                    <td>↦</td>
+                    <td>/v</td>
+                    <td><b>Polopřímka</b> se používá bez jakékoliv definice. Použijete ji, když chcete narýsovat polopřímku počínající v jednom bodě procházející v bodě druhém.</td>
+                    <td><span><i>↦</i>OP</span></td>
+                </tr><tr>
+                    <td>∥</td>
+                    <td>/r</td>
+                    <td><b>Rovnoběžka</b> je poměrně jasná. Pokud chcete definovat novou přímku, která je rovnoběžná s jinou přímkou, polopřímkou, či úsečkou. Kromě toho, s čím bude přímka rovnoběžná musíte definovat buď bod, kterým bude procházet, nebo vzdálenost od původní přímky. Pozor, pokud chcete udělat rovnoběžku ke spojnici dvou bodů, musí nejdříve existovat "čára", která tyto body spojuje. Pokud zadáte dva nespojené body, dojde k chybě.</td>
+                    <td>
+                        <span>p; p<i>∥</i>q ∧ |pq| = 5cm</span>, 
+                        <span>l; C∈l ∧ PQ<i>∥</i>l</span>
+                    </td>
+                </tr><tr>
+                    <td>⊥</td>
+                    <td>/k</td>
+                    <td><b>Kolmice</b> funguje velmi podobňe, jako rovnoběžka, ale je vždy definovaná přímkou (úsečkou/polopřímkou), ke které je kolmá a bodem, kterým prochází</td>
+                    <td><span>f; f<i>⊥</i>RS ∧ T∈f</span></td>
+                </tr><tr>
+                    <td>∢</td>
+                    <td>/u</td>
+                    <td><b>Úhel</b> je symbol, který použijete jen při definování bodu, který má být pod nějakým úhlem vůči dvěma již existujícím bodům. Můžete přidat i vzdálenost, kterou má mít nový bod od vrcholu. Program nezná minuty a vteřiny, takže musíte pro necelé hodnoty stupňů psát desetinná čísla.</td>
+                    <td>
+                        <span>C; |<i>∢</i>ABC| = 150°</span>, <br>
+                        <span>X; |<i>∢</i>XYZ| = 210° ∧ |XY| = 68mm</span>
+                    </td>
+                </tr><tr>
+                    <td>°</td>
+                    <td><span>AltGr+ř</span></td>
+                    <td><b>Stupeň</b> funguje opět stejně, jako v celém zbytku matematiky. Program nezná minuty a vteřiny, takže musíte pro necelé hodnoty stupňů psát desetinná čísla.</td>
+                    <td><span>C; |∢ABC| = 12.896<i>°</i></span></td>
+                </tr>
+            </tbody>
+        </table>
+
+        <h2>Syntax</h2>
+        <p>Už máme definované značky, teď už jenom, jak je používat. Je pár základních objektů, které jsou jako základní stavební kameny pro každou geometrickou konstrukci. Pro tyto objekty tady je tabulka s konkrétní syntaxí nutnou pro sestavení každého z nich:</p>
+
+        <table class="syntax-table">
+            <colgroup>
+                <col class="object-col"/>
+                <col class="syntax-col"/>
+                <col class="example-col"/>
+            </colgroup>
+
+            <thead>
+                <td>Objekt</td>
+                <td>Syntax</td>
+                <td>Příklad</td>
+            </thead>
+            <tbody>
+                <tr>
+                    <td>Mnohoúhelníky</td>
+                    <td>
+                        <span><i>⬠</i>body</span>,
+                        <span><i>△</i>XYZ</span>,
+                        <span><i>◻</i>XYZV</span>
+                    </td>
+                    <td><span>⬠ABC</span></td>
+                </tr><tr>
+                    <td>Bod</td>
+                    <td>
+                        <span>X</span> : pouze na začátku, vytvoří žádaný bod uprostřed<br>
+                        <span>X<i>;</i> definice</span><br>
+                        <span>XY<i>;</i> <i>{</i>X, Y<i>}</i><i>⊆</i>k<i>∩</i>l</span> : vytvoří všechny průsečíky objektu s kruhem
+                    </td>
+                    <td><span>O; |∢ABC| = |∢BCO|</span></td>
+                </tr><tr>
+                    <td>Úsečka</td>
+                    <td>
+                        <span>XY<i>; |</i>XY<i>| = cm/mm</i></span> : pouze na začátku, vytvoří i body (2. možnost kromě 1 bodu)<br>
+                        <span>XY</span> : "spojí" dva existující body
+                    </td>
+                    <td><span>RS; |RS| = 10cm</span></td>
+                </tr><tr>
+                    <td>Přímka</td>
+                    <td>
+                        <span>p<i>;</i> definice</span>, 
+                        <span>p<i>; </i><i style="font-family: sans-serif;">↔</i>XY</span>
+                    </td>
+                    <td><span>m; m⊥q ∧ L∈m</span></td>
+                </tr><tr>
+                    <td>Polopřímka</td>
+                    <td><span><i>↦</i>XY</span></td>
+                    <td><span>↦UV</span></td>
+                </tr><tr>
+                    <td>Kružnice</td>
+                    <td>
+                        <span>k<i>;</i> k<i>(</i>X<i>,</i> <i>)</i></span>, 
+                        <span>k<i>;</i> k<i>(</i>X<i>, r=</i>  <i>)</i></span>
+                        : Obě možnosti fungují zcela totžně. V mezeře na konci může být buď vzdálenost mezi dvěma body, nebo přesná délka
+                    </td>
+                    <td><span>k; k(S; r=|ST|)</span></td>
+                </tr>
+            </tbody>
+        </table>
+
+        <p>
+            Poměrně důléžité je, jak objekty pojměnovávat a jak s jejich jmény pracovat. Pravidla pro pojmenovávání objektů jsou následující:
+            <ul>
+                <li><b>Body</b> musí být pojmenovány velkým písmenem a volitelně přidaným spodním indexem.</li>
+                <li><b>Kružnice a přímky</b> musí být pojmenovány malým písmenem a volitelně přidaným spodním indexem.</li>
+                <li><b>Polopřímky a úsečky</b> se nepojmenovávají ručně. Nesou jména bodů, kterými jsou definovány. Když k nim referujete později je nutné dodržovat pořadí bodů ve jméně.</li>
+                <li><b>Spodní indexy</b> mohou být malé i velké písmeno či číslo. Vždy musí být pouze jeden znak dlouhé. Uvádějí se následovně:
+                    <div class="inline-code" style="font-style: italic;">Obecný symbol<i>_</i>symbol indexu</div>. Např. <div class="inline-code">A_1</div>,
+                    <div class="inline-code">R_s</div> nebo <div class="inline-code">p_A</div> Při vykreslování se budou dolní indexy zobrazovat normalně a bez podtržítka.</li>
+            </ul>
+        </p>
+
+        <h2>Co program umí a co ne</h2>
+        <!-- <p>Nakonec ještě musíme ujasnit co s programem můžeme a co ne:</p> -->
+
+        <table class="possibilities-table">
+            <colgroup>
+                <col class="pos-pos"/>
+                <col class="pos-neg"/>
+            </colgroup>
+            <thead>
+                <td>Co program umí</td>
+                <td>Co program neumí</td>
+            </thead>
+            <tbody>
+                <tr>
+                    <td>
+                        Nezáleží na pořadí prvků, když udáváte vzálenost, velikost, či jejich výčet, To znamená, že například 
+                        <div class="inline-code">|uv|</div> ⇔ <div class="inline-code">|vu|</div>, nebo
+                        <div class="inline-code">{O, P}</div> ⇔ <div class="inline-code">{P, O}</div>
+                    </td>
+                    <td>
+                        Nemůžete zadávat příklady, například zadat, že velikost úhlu má být 1/7 jiného úhlu, nebo 180/5° není možné. Stejně tak není možné např. 
+                        <div class="inline-code">k; k(S; |UV|<i>/8*3+2</i>)</div>, či <div class="inline-code">k; k(S; <i>16*2</i>)</div>
+                    </td>
+                </tr><tr>
+                    <td>
+                        Místo čárky (samozřejmě s výjimkou té desetinné) můžete psát vždy i středník. Tzn. 
+                        <div class="inline-code">{E, F}</div> ⇔ <div class="inline-code">{E; F}</div>.
+                    </td>
+                    <td>
+                        Program nepopíše úhel, ani jeho velikost, jako to dělá například program Geogebra. Úhel je vnímán pouze jako předmět
+                    </td>
+                </tr><tr>
+                    <td>
+                        Na mezerách nezáleží. Tzn. 
+                        <div class="inline-code">S; |ZS| = |SO| ∧ S∈ZO</div> ⇔ <div class="inline-code">S;|ZS|=|SO|∧S∈ZO</div>.
+                    </td>
+                    <td>Narozdíl od popisu postupu konstrukce, který byste psali pro čtení lidmi, zde musíte každý prvek přesně popsat a narýsovat, než s ním začnete pracovat. Tzn. pokud před <div class="inline-code">X; X∈p∩AB</div> vysloveně nenarýsujete úsečku AB (či polopřímku), dojde k chybě.</td>
+                </tr>
+            </tbody>
+        </table>
+
+        <h2>Příklady</h2>
+        <p>
+            Pokud si stále nejste zcela jistí, jak program používat, je tu pro Vás připravených pár příkladů, na kterých si můžete konkrétně prohlédnout, jak to celé funguje.
+        </p>
+        <table class="examples-tab" id="examples">
+            <colgroup>
+                <col class="name-col"/>
+                <col class="description-col"/>
+                <col class="subject-col"/>
+            </colgroup>
+            <thead>
+                <tr>
+                    <td>Jméno</td>
+                    <td>Popis</td>
+                    <td>Obsah</td>
+                </tr>
+            </thead>
+            <tbody>
+                <tr>
+                    <td><a href="">Pětiúhelník</a></td>
+                    <td>Konstrukce petíúhelníku pomocí kružítka a pravítka není úplná hračka. Jeho konstrukce je </td>
+                    <td>O
+                        k; k(O, 5cm)
+                        Z; Z∈k
+                        q;↔OZ
+                        p; p⊥q ∧ O∈p
+                        YD; {D, Y}⊆p∩k
+                        S; |ZS| = |SO| ∧ S∈ZO
+                        o; o(S; |SD|)
+                        X; X∈o∩q
+                        p_1; p_1(D; |DX|)
+                        EC; {E, C}⊆p_1∩k
+                        p_2; p_2(C; |DX|)
+                        B; B∈k∩p_2
+                        p_3; p_3(B; |DX|)
+                        A; A∈k∩p_3
+                        ⬠ABCDE</td>
+                </tr>
+                <tr>
+                    <td><a href="">Konstrukce trojúhelníku podle SSS</a></td>
+                    <td>Konstrukce trojúhelníku podle věty SSS.</td>
+                    <td>AB; |AB| = 8cm
+                        k_1; k_1(A; 75mm)
+                        k_2; k_2(B; 40mm)
+                        C; C∈k_1∩k_2
+                        △ABC</td>
+                </tr>
+                <tr>
+                    <td><a href="">Konstrukce trojúhelníku podle SUS</a></td>
+                    <td>Konstrukce trojúhelníku podle věty SUS.</td>
+                    <td>TU; |TU| = 75mm
+                        k; k(U; 4.2cm)
+                        X; |∢TUX| = 45°
+                        ↦UX
+                        V; V∈k∩UX
+                        △TUV</td>
+                </tr>
+                <tr>
+                    <td><a href="">Konstrukce trojúhelníku podle SSU</a></td>
+                    <td>Konstrukce trojúhelníku podle věty SSU. Pokud máte základní přiblížení, celá konstrukce se nevejde do obrázku, zkuste si ji změnit.</td>
+                    <td>KL; |KL| = 14.5cm
+                        X; |∢KLX|  = 39.5°
+                        k; k(K, r=17cm)
+                        ↦LX
+                        M; M∈k∩LX
+                        △KLM</td>
+                </tr>
+                <tr>
+                    <td><a href="#">Těžnice a výšky</a></td>
+                    <td>Konstrukce trojúhelníku z údajů o délce jeho strany, výšky a těžnice.</td>
+                    <td>AB; |AB| = 11cm
+                        p_c; p_c∥AB ∧ |p_cAB| = -7cm
+                        S; |AS| = |SB| ∧ S∈AB
+                        k_T; k_T(S; r = |SB|)
+                        k_1; k_1(A, r = 4cm)
+                        P_A; P_A∈k_1∩k_T
+                        ↦BP_A
+                        C; C∈BP_A∩p_c
+                        △ABC</td>
+                </tr>
+                <tr>
+                    <td><a href="">Šestiúhelník</a></td>
+                    <td>Konstrukce šestiúhelníku.</td>
+                    <td>AD; |AD| = 14cm
+                        S; |AS| = |DS| ∧ S∈AD
+                        k; k(S; |AS|)
+                        l; l(A; |AS|)
+                        m; m(D; |AS|)
+                        FB; {B, F} ⊆ k∩l
+                        EC; {C, E} ⊆ k∩m
+                        ⬠ABCDEF</td>
+                </tr>
+                <tr>
+                    <td><a href="">Čtverec</a></td>
+                    <td>Klasická konstrukce čtverce pomocí pravítka a kružítka.</td>
+                    <td>PQ; |PQ| = 4cm
+                        k_1; k_1(Q; |PQ|)
+                        p; p⊥PQ ∧ Q∈p
+                        R; R∈k_1∩p
+                        k_2; k_2(P; |PQ|)
+                        q; q⊥PQ ∧ P∈q
+                        S; S∈k_2∩q
+                        ◻PQRS</td>
+                </tr>
+                <tr>
+                    <td><a href="">Čtverec 2</a></td>
+                    <td>Alternativní způsob, jak zkonstruovat čtverec. V reálu byste ho asi nepoužili, ale na počet kroků je kratší, nežli klasický způsob.</td>
+                    <td>HI; |HI| = 4cm
+                        J; |∢HIJ| = 90° ∧ |IJ| = |HI|
+                        K; |∢IHK| = -90° ∧ |HK| = |HI|
+                        ◻HIJK</td>
+                </tr>
+                <tr>
+                    <td><a href="">Sedmiúhelník</a></td>
+                    <td>Konstrukce sedmiúhelníku pomocí pravítka a kružítka.</td>
+                    <td>AS; |AS| = 5cm
+                        k; k(S; |AS|)
+                        k_0; k_0(A; |AS|)
+                        Q; |AQ|= |QS| ∧ Q∈AS
+                        K; K∈k∩k_0
+                        QK
+                        k_1; k_1(A; |QK|)
+                        GB; {G, B}⊆k_1∩k
+                        k_2; k_2(B; |QK|)
+                        C; C∈-k∩k_2
+                        k_3; k_3(C; |QK|)
+                        D; D∈k∩k_3
+                        k_4; k_4(D; |QK|)
+                        E; E∈k∩k_4
+                        k_5; k_5(E; |QK|)
+                        F; F∈k∩k_5
+                        ⬠ABCDEFG</td>
+                </tr>
+            </tbody>
+        </table>
     </div>
-    <div class="app" id="app">
-        <div class="controls">
-            <div class="text">
-                <div class="line-numbers"></div>
-                <textarea class="numbered" id="input" cols="75" rows="10"></textarea>
+
+    <!-- KONEC PREDMLUVY -->
+
+    <h2>Program:</h2>
+
+    <div class="program">
+        <div class="options">
+            <h3>Nastavení vzhledu:</h3>
+            <div class="checkbox-wrapper">
+                <input type="checkbox" class="checkbox"
+                    onclick="paperMode = !paperMode; run();">
+                Mód "papíru a tužky"
             </div>
-            <div class="buttons keyboard" id="keyboard">
+            <div class="checkbox-wrapper">
+                <input type="checkbox" class="checkbox"
+                    onclick="globalPointStyle = (globalPointStyle+1) % 2; run();">
+                Tečkové body
             </div>
-            <div class="buttons">
-                <button id="run">Sestrojt!</button>
+            <div class="checkbox-wrapper">
+                <input type="checkbox" class="checkbox"
+                    onclick="printLastStep = !printLastStep; run();">
+                Při animaci psát poslední krok
             </div>
         </div>
-        <div class="right" id="right">
 
+        <div class="app" id="app">
+            <div class="controls">
+                <div class="text">
+                    <div class="line-numbers"></div>
+                    <textarea class="numbered" id="input" cols="75" rows="10"></textarea>
+                </div>
+                <div class="buttons keyboard" id="keyboard">
+                </div>
+                <div class="buttons">
+                    <button id="run">Sestrojt!</button>
+                </div>
+
+            </div>
+            <div class="right" id="right">
+                <div id="canvas-container"></div>
+                <div class="buttons play-row">
+                    <button id="step-back">&lt;&lt;</button>
+                    <button id="play">&#9658;</button>
+                    <button id="step-front">&gt;&gt;</button>
+                </div>
+                <div class="px-range">
+                    Cm:Px
+                    <input type="range" min="10" max="100" value="30" class="slider" id="cmToPx">
+                </div>
+            </div>
         </div>
     </div>
 </body>

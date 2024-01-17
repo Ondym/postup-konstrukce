@@ -1,6 +1,13 @@
 :root {
     --main-bg-color: #292D34;
     --main-fg-color: #fff;
+    --main-red: #c16266;
+    --main-green: #90b061;
+    --fg-color-rgb: 255, 255, 255;
+}
+
+::selection{
+    background: color-mix(in srgb, var(--main-fg-color) 10%, transparent);
 }
 
 body{
@@ -12,15 +19,137 @@ body{
 
 body *{
     color: var(--main-fg-color);
-    outline: none;
+    /* outline: none; */
 }
 
 .introduction {
     display: block;
+    padding: 5px 5vw;
 }
 
 h1{
-    margin: 0 0 0 0;
+    margin: 10px 0 30px 0;
+}
+
+h3{
+    margin: 0;
+    text-align: center;
+}
+
+table{
+    width: 90%;
+    margin: 0 5%;
+    border-collapse: collapse;
+    border: 1px solid var(--main-fg-color);
+}
+
+.symbol-col{width: 10%}
+.shortcut-col{width: 5%}
+.meaning-col{width: 53%}
+.example-col{width: 32%}
+
+thead{
+    background-color: color-mix(in srgb, var(--main-fg-color) 10%, transparent);
+    font-weight: bold;
+}
+
+thead td{
+    text-align: center;
+    height: 1.5em;
+}
+
+td{
+    border: 1px solid var(--main-fg-color);
+    padding: .6em 1em;
+}
+
+.symb-tab tbody tr td:first-child{
+    font-size: 1.5em;
+    font-weight: bold;
+    text-align: center;
+}
+
+.symb-tab tbody tr td:nth-child(2){
+    text-align: center;
+}
+
+tbody tr td:last-child, .syntax-table tr td:nth-child(2) {line-height: 1.7em;}
+tbody tr td span, .inline-code{
+    font-size: 1.2em;
+    font-family: monospace;
+    background-color: color-mix(in srgb, var(--main-fg-color) 7%, transparent);
+    border-radius: 2px;
+    display: inline;
+    padding: .2em .4em;
+    /* margin: 2px 0 */
+}
+
+/* .inline-code{
+    font-size: 0.9em;
+} */
+
+tbody tr td span i, .inline-code i {
+    font-style: normal;
+    font-weight: bolder;
+    color: var(--main-red);
+}
+
+.syntax-table tr td:nth-child(2) span{
+    font-style: italic;
+}
+
+.syntax-table tbody tr td:first-child{
+    font-weight: bold;
+    text-align: center;
+}
+
+.possibilities-table tbody td{
+    vertical-align: text-top;
+}
+
+.pos-pos{
+    background: color-mix(in srgb, var(--main-green) 30%, transparent);
+    width: 50%;
+}
+
+.pos-neg{
+    background: color-mix(in srgb, var(--main-red) 30%, transparent);
+    width: 50%;
+}
+
+.name-col{width: 30%;}
+.examples-tab .description-col{width: 70%;}
+
+.examples-tab tr td:last-child {
+    display: none;
+    background: #f00;
+}
+
+.examples-tab tbody td{
+    padding: 1em 1.5em;
+    /* text-align: center; */
+}
+
+.examples-tab tbody tr td:first-child{
+    text-align: center;
+    font-size: 1.1em;
+}
+
+a{
+    color: var(--main-green);
+}
+
+a:hover{color: color-mix(in srgb, var(--main-green) 70%, var(--main-fg-color));}
+a:active{color: color-mix(in srgb, var(--main-green) 85%, var(--main-bg-color));}
+
+.options{
+    background: color-mix(in srgb, var(--main-fg-color) 3%, transparent);
+    padding: 1.5em 2em;
+    margin: 15px 0;
+    display: flex;
+    flex-direction: row;
+    gap: 50px;
+    justify-content: center;
 }
 
 .app{
@@ -31,6 +160,10 @@ h1{
     gap: 15px; 
     margin-bottom: 45px;
     width: 100%;
+}
+
+p{
+    text-align: justify;
 }
 
 .controls{
@@ -48,8 +181,12 @@ h1{
     display: inline-flex;
     /* overflow-y: scroll; */
     height: 430px;
-    background-color: #fff1;
+    background-color: color-mix(in srgb, var(--main-fg-color) 7%, transparent);
     padding: 0 10px 0 0;
+}
+
+.text * {
+    outline: none;
 }
 
 .style{
@@ -67,6 +204,7 @@ h1{
     font-size: 15px;
     line-height: 1.1em;
     font-family: 'Courier New', Courier, monospace;
+    /* background: color-mix(in srgb, var(--main-bg-color) 55%, transparent); */
     background: #0002;
     padding: 10px 10px 0 0px;
     text-align: right;
@@ -137,7 +275,7 @@ button{
     display: grid;
     justify-content: center;
     align-content: center;
-    border: 1px solid #aaa;
+    border: 1px solid color-mix(in srgb, var(--main-fg-color) 60%, transparent);
     /* padding: 50%; */
 }
 
@@ -172,18 +310,119 @@ button:active{
     background: #707070 !important;
 }
 
+.play-row button{
+    border-radius: 100%;
+    font-size: 20px;
+    margin: 0 10px;
+    height: 40px;
+    width: 40px;
+    transition: all 0.3s;
+    text-align: center;
+    display: grid;
+    justify-content: center;
+    align-content: center;
+    padding: 0;
+    border: none;
+}
+
+.pause-icon{
+    position: relative;
+    display: inline-block;
+    width: .6em;
+    height: .8em;
+    overflow: hidden;
+}
+
+.pause-icon::before, .pause-icon::after{
+    content: '';
+    position: absolute;
+    top: 0;
+    width: 40%;
+    height: 100%;
+    background-color: white;
+    border-radius: 2px;
+}
+
+.pause-icon::before {left: 0;}
+.pause-icon::after {right: 0;}
+
 .right{
     text-align: center;
+}
+
+.px-range{
+    text-align: center;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    gap: 10px;
+    padding: 10px 0;
+}
+
+.slider {
+    -webkit-appearance: none;
+    appearance: none;
+    width: 50%;
+    height: 2px;
+    background-color: color-mix(in srgb, var(--main-fg-color) 50%, transparent);
+    border-radius: 5px;
+    outline: none;
+    cursor: pointer;
+    transition: background 0.1s;
+    display: inline;
+}
+  
+.slider:hover {
+    background: #555;
+}
+  
+.slider::-webkit-slider-thumb {
+    -webkit-appearance: none;
+    appearance: none;
+    width: 20px;
+    height: 20px;
+    background: var(--main-fg-color);
+    border: 3px solid var(--main-bg-color);
+    border-radius: 50%;
+    cursor: pointer;
+    box-shadow: 0 0 2px color-mix(in srgb, var(--main-fg-color) 50%, transparent);
+}
+
+.slider::-moz-range-thumb {
+    width: 20px;
+    height: 20px;
+    background: var(--main-fg-color);
+    border: 3px solid #333;
+    border-radius: 50%;
+    cursor: pointer;
+    box-shadow: 0 0 2px #000;
 }
 
 @media only screen and (max-width: 1200px){
     .app{
         flex-direction: column;
     }
-
+    
     .right{
         border-top: 1px var(--main-fg-color) solid;
         padding: 15px 0 0 0;
+    }
+    
+    .options{
+        flex-direction: row;
+        gap: 18px;
+        flex-wrap: wrap;
+    }
+    
+    .options h3{
+        width: 100%;
+        align-self: flex-start;
+        display: block;
+    }
+}
+@media only screen and (max-width: 800px){
+    .options{
+        flex-direction: column;
     }
 }
 

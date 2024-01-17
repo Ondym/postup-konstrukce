@@ -1,0 +1,72 @@
+.checkbox-wrapper{
+  display: flex;
+  align-items: center;
+  gap: 5px;
+}
+
+/* Made by Linear */
+/* Copied from https://getcssscan.com/css-checkboxes-examples */
+
+.checkbox-wrapper .checkbox {
+    appearance: none;
+    background-color: #dfe1e4;
+    border-radius: 72px;
+    border-style: none;
+    flex-shrink: 0;
+    height: 20px;
+    margin: -3px 8px 0 0 ;
+    position: relative;
+    width: 30px;
+  }
+
+  .checkbox-wrapper .checkbox::before {
+    bottom: -6px;
+    left: -6px;
+    right: -6px;
+    top: -8px;
+    content: "";
+    position: absolute;
+  }
+
+  .checkbox-wrapper .checkbox,
+  .checkbox-wrapper .checkbox::after {
+    transition: all 100ms ease-out;
+  }
+
+  .checkbox-wrapper .checkbox::after {
+    background-color: #fff;
+    border-radius: 50%;
+    content: "";
+    height: 14px;
+    left: 3px;
+    position: absolute;
+    top: 3px;
+    width: 14px;
+  }
+
+  .checkbox-wrapper input[type=checkbox] {
+    
+    cursor: pointer;
+  }
+
+  .checkbox-wrapper .checkbox:hover {
+    background-color: #c9cbcd;
+    transition-duration: 0s;
+  }
+
+  .checkbox-wrapper .checkbox:checked {
+    background-color: var(--main-green);
+  }
+
+  .checkbox-wrapper .checkbox:checked::after {
+    background-color: #fff;
+    left: 13px;
+  }
+
+  .checkbox-wrapper :focus:not(.focus-visible) {
+    /* outline: 0; */
+  }
+
+  .checkbox-wrapper .checkbox:checked:hover {
+    background-color: color-mix(in srgb, var(--main-green) 70%, var(--main-bg-color));;
+  }
